@@ -1,4 +1,4 @@
-# Commons DAV Library
+# CalDAV/CardDAV Client Library
 
 [![License](https://img.shields.io/badge/license-AGPLv3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.txt)
 
