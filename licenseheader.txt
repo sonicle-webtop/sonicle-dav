@@ -1,0 +1,36 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Copyright (C) ${date?date?string("yyyy")} Sonicle S.r.l.
+${licensePrefix?replace(" +$", "", "r")}
+${licensePrefix}This program is free software; you can redistribute it and/or modify it under
+${licensePrefix}the terms of the GNU Affero General Public License version 3 as published by
+${licensePrefix}the Free Software Foundation with the addition of the following permission
+${licensePrefix}added to Section 15 as permitted in Section 7(a): FOR ANY PART OF THE COVERED
+${licensePrefix}WORK IN WHICH THE COPYRIGHT IS OWNED BY SONICLE, SONICLE DISCLAIMS THE
+${licensePrefix}WARRANTY OF NON INFRINGEMENT OF THIRD PARTY RIGHTS.
+${licensePrefix?replace(" +$", "", "r")}
+${licensePrefix}This program is distributed in the hope that it will be useful, but WITHOUT
+${licensePrefix}ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+${licensePrefix}FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+${licensePrefix}details.
+${licensePrefix?replace(" +$", "", "r")}
+${licensePrefix}You should have received a copy of the GNU Affero General Public License
+${licensePrefix}along with this program; if not, see http://www.gnu.org/licenses or write to
+${licensePrefix}the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+${licensePrefix}MA 02110-1301 USA.
+${licensePrefix?replace(" +$", "", "r")}
+${licensePrefix}You can contact Sonicle S.r.l. at email address sonicle[at]sonicle[dot]com
+${licensePrefix?replace(" +$", "", "r")}
+${licensePrefix}The interactive user interfaces in modified source and object code versions
+${licensePrefix}of this program must display Appropriate Legal Notices, as required under
+${licensePrefix}Section 5 of the GNU Affero General Public License version 3.
+${licensePrefix?replace(" +$", "", "r")}
+${licensePrefix}In accordance with Section 7(b) of the GNU Affero General Public License
+${licensePrefix}version 3, these Appropriate Legal Notices must retain the display of the
+${licensePrefix}Sonicle logo and Sonicle copyright notice. If the display of the logo is not
+${licensePrefix}reasonably feasible for technical reasons, the Appropriate Legal Notices must
+${licensePrefix}display the words "Copyright (C) ${date?date?string("yyyy")} Sonicle S.r.l.".
+<#if licenseLast??>
+${licenseLast}
+</#if>
