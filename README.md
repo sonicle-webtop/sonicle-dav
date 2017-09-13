@@ -18,8 +18,9 @@ Schema classes are provided from [cdav-connector](https://github.com/Kerio/cdav-
 ## Build Instructions
 
 This library uses [Maven](http://maven.apache.org/) as its build tool, and adheres to its convensions.
-To build the project: `mvn compile`
-To build a JAR: `mvn package`
+
+* To build the project: `mvn compile`
+* To build a JAR: `mvn package`
 
 ## License
 
