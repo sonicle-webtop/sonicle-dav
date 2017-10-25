@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2017 Sonicle S.r.l.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -30,67 +30,54 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
+package com.sonicle.dav.carddav.impl.response;
 
 import static com.sonicle.dav.DavUtil.HTTP_SC_TEXT_OK;
-import com.sonicle.dav.caldav.DavCalendarEvent;
-import com.sonicle.dav.impl.MultistatusHandler;
+import com.sonicle.dav.carddav.DavAddressbook;
 import com.sonicle.dav.impl.DavException;
+import com.sonicle.dav.impl.MultistatusHandler;
 import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
-import net.fortuna.ical4j.data.CalendarBuilder;
-import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.Calendar;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
+import zswi.schemas.dav.allprop.Multistatus;
+import zswi.schemas.dav.allprop.ObjectFactory;
+import zswi.schemas.dav.allprop.Prop;
+import zswi.schemas.dav.allprop.Propstat;
+import zswi.schemas.dav.allprop.Response;
 
 /**
  *
  * @author malbinola
  */
-public class ICalendarObjectsHandler extends MultistatusHandler<Multistatus, List<DavCalendarEvent>> {
-	
+public class GetAddressbookHandler extends MultistatusHandler<Multistatus, List<DavAddressbook>> {
+
 	@Override
 	public ResponseHandler<Multistatus> getResponseHandler() {
 		return new MultistatusResponseHandler<>(ObjectFactory.class);
 	}
 
 	@Override
-	public List<DavCalendarEvent> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavCalendarEvent> result = new ArrayList<>(multistatus.getResponse().size());
-		try {
-			for (Response response : multistatus.getResponse()) {
-				for (Propstat propstat : response.getPropstat()) {
-					if (HTTP_SC_TEXT_OK.equals(propstat.getStatus())) {
-						result.add(createDavCalendarEvent(response, propstat));
-					}
+	public List<DavAddressbook> fromMultistatus(Multistatus multistatus) throws DavException {
+		List<DavAddressbook> result = new ArrayList<>(multistatus.getResponse().size());
+		for (Response response : multistatus.getResponse()) {
+			for (Propstat propstat : response.getPropstat()) {
+				if (HTTP_SC_TEXT_OK.equals(propstat.getStatus())) {
+					result.add(createDavAddressbook(response, propstat));
 				}
 			}
-		} catch(IOException | ParserException ex) {
-			throw new DavException(ex);
 		}
 		return result;
 	}
 	
-	protected DavCalendarEvent createDavCalendarEvent(final Response response, final Propstat propstat) throws IOException, ParserException {
+	protected DavAddressbook createDavAddressbook(final Response response, final Propstat propstat) {
 		final Prop prop = propstat.getProp();
-		
-		Calendar calendar = null;
-		if (!StringUtils.isBlank(prop.getCalendarData())) {
-			calendar = new CalendarBuilder().build(new StringReader(prop.getCalendarData()));
-		}
-		return new DavCalendarEvent(
+		return new DavAddressbook(
 				response.getHref(),
 				prop.getGetetag(),
-				calendar
+				prop.getGetctag(),
+				prop.getDisplayname(),
+				prop.getSyncToken()
 		);
 	}
 }

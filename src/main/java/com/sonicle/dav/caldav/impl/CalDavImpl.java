@@ -33,12 +33,6 @@
 package com.sonicle.dav.caldav.impl;
 
 import com.sonicle.dav.caldav.impl.response.ICalendarObjectsHandler;
-import com.github.sardine.DavResource;
-import com.github.sardine.impl.SardineImpl;
-import com.github.sardine.impl.handler.HeadersResponseHandler;
-import com.github.sardine.impl.handler.VoidResponseHandler;
-import com.github.sardine.impl.methods.HttpPropFind;
-import com.github.sardine.impl.methods.HttpReport;
 import com.github.sardine.model.ObjectFactory;
 import com.github.sardine.model.Prop;
 import com.github.sardine.model.Propfind;
@@ -53,15 +47,11 @@ import com.sonicle.dav.caldav.impl.request.SyncCollectionRequest;
 import com.sonicle.dav.caldav.impl.response.GetCalendarHandler;
 import com.sonicle.dav.caldav.impl.response.SyncCollectionHandler;
 import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.Request;
+import com.sonicle.dav.impl.DavImpl;
 import java.io.IOException;
 import java.net.ProxySelector;
 import java.util.List;
-import java.util.Map;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpOptions;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,9 +59,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author malbinola
  */
-public class CalDavImpl extends SardineImpl implements CalDav {
+public class CalDavImpl extends DavImpl implements CalDav {
 	private static final Logger log = (Logger) LoggerFactory.getLogger(CalDavImpl.class);
-	private static final String UTF_8 = "UTF-8";
 	
 	public CalDavImpl() {
 		super();
@@ -157,7 +146,7 @@ public class CalDavImpl extends SardineImpl implements CalDav {
 	
 	@Override
 	public List<DavCalendarEvent> listCalendarEvents(String calendarUrl) throws DavException {
-		String request = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
+		String xmlRequest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
 				+ "<c:calendar-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">\n"
 				+ "  <d:prop>\n"
 				+ "    <c:calendar-data/>\n"
@@ -171,7 +160,7 @@ public class CalDavImpl extends SardineImpl implements CalDav {
 				+ "</c:calendar-query>";
 		
 		try {
-			return this.report(calendarUrl, 1, request, new ICalendarObjectsHandler());
+			return this.report(calendarUrl, 1, xmlRequest, new ICalendarObjectsHandler());
 		} catch(IOException ex) {
 			throw new DavException(ex);
 		}
@@ -188,10 +177,17 @@ public class CalDavImpl extends SardineImpl implements CalDav {
 		}
 	}
 	
-	
-	
-	
-	
+	protected Propfind createGetCalendarRequest() {
+		ObjectFactory factory = new ObjectFactory();
+		Prop prop = new Prop();
+		prop.setGetetag(factory.createGetetag());
+		prop.setDisplayname(factory.createDisplayname());
+		
+		Propfind propfind = new Propfind();
+		propfind.setProp(prop);
+		
+		return propfind;
+	}
 	
 	/*
 	@Override
@@ -232,45 +228,4 @@ public class CalDavImpl extends SardineImpl implements CalDav {
 		}
 	}
 	*/
-	
-	
-	
-	public <M, R> R propfind(String url, int depth, Request request, MultistatusHandler<M, R> handler) throws IOException, DavException {
-		return propfind(url, depth, request.toXML(), handler);
-	}
-	
-	public <M, R> R propfind(String url, int depth, String xmlRequest, MultistatusHandler<M, R> handler) throws IOException, DavException {
-		HttpPropFind method = new HttpPropFind(url);
-		method.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
-		method.setEntity(new StringEntity(xmlRequest, UTF_8));
-		return (R)handler.fromMultistatus(this.execute(method, handler.getResponseHandler()));
-	}
-	
-	public <M, R> R report(String url, int depth, Request request, MultistatusHandler<M, R> handler) throws IOException, DavException {
-		return report(url, depth, request.toXML(), handler);
-	}
-	
-	public <M, R> R report(String url, int depth, String xmlRequest, MultistatusHandler<M, R> handler) throws IOException, DavException {
-		HttpReport method = new HttpReport(url);
-		method.setDepth(depth < 0 ? "infinity" : Integer.toString(depth));
-		method.setEntity(new StringEntity(xmlRequest, UTF_8));
-		return (R)handler.fromMultistatus(this.execute(method, handler.getResponseHandler()));
-	}
-	
-	public Map<String, String> options(String url) throws IOException {
-		HttpOptions method = new HttpOptions(url);
-		return this.execute(method, new HeadersResponseHandler());
-	}
-	
-	protected Propfind createGetCalendarRequest() {
-		ObjectFactory factory = new ObjectFactory();
-		Prop prop = new Prop();
-		prop.setGetetag(factory.createGetetag());
-		prop.setDisplayname(factory.createDisplayname());
-		
-		Propfind propfind = new Propfind();
-		propfind.setProp(prop);
-		
-		return propfind;
-	}
 }

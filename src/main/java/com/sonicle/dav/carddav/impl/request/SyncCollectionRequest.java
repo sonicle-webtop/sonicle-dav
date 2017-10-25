@@ -30,49 +30,61 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
+package com.sonicle.dav.carddav.impl.request;
 
-import com.sonicle.dav.DavSyncStatus;
-import com.sonicle.dav.impl.MultistatusHandler;
-import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.ResponseHandler;
+import com.sonicle.dav.impl.AbstractRequest;
+import java.io.IOException;
 
 /**
  *
  * @author malbinola
  */
-public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
+public class SyncCollectionRequest extends AbstractRequest {
+	private final String syncToken;
+	private final int syncLevel;
+	
+	public SyncCollectionRequest(Builder builder) {
+		this.syncToken = builder.syncToken;
+		this.syncLevel = builder.syncLevel;
+	}
 	
 	@Override
-	public ResponseHandler<Multistatus> getResponseHandler() {
-		return new MultistatusResponseHandler<>(ObjectFactory.class);
+	public String toXML() throws IOException {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<d:sync-collection xmlns:d=\"DAV:\">");
+		xml.append("<d:sync-token>");
+		xml.append(syncToken);
+		xml.append("</d:sync-token>");
+		xml.append("<d:sync-level>");
+		xml.append(String.valueOf(syncLevel));
+		xml.append("</d:sync-level>");
+		xml.append("<d:prop>");
+		xml.append("<d:getetag/>");
+		xml.append("</d:prop>");
+		xml.append("</d:sync-collection>");
+		return xml.toString();
 	}
-
-	@Override
-	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
-		for (Response response : multistatus.getResponse()) {
-			for (Propstat propstat : response.getPropstat()) {
-				result.add(createDavSyncStatus(response, propstat));
-			}
+	
+	public static class Builder {
+		private String syncToken;
+		private int syncLevel;
+		
+		public Builder() {
+			this.syncLevel = 1;
 		}
-		return result;
-	}
-	
-	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
-		final Prop prop = propstat.getProp();
-		return new DavSyncStatus(
-				response.getHref(),
-				prop.getGetetag(),
-				propstat.getStatus()
-		);
+		
+		public Builder setSyncToken(String syncToken) {
+			this.syncToken = syncToken;
+			return this;
+		}
+		
+		public Builder setSyncLevel(int syncLevel) {
+			this.syncLevel = syncLevel;
+			return this;
+		}
+		
+		public SyncCollectionRequest build() {
+			return new SyncCollectionRequest(this);
+		}
 	}
 }

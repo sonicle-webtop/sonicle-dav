@@ -55,7 +55,7 @@ public class GetCalendarRequest extends PropRequest {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">");
 		xml.append("<d:prop>");
-		for(String prop : props) {
+		for (String prop : props) {
 			if (prop.equals(PROP_DISPLAYNAME)) {
 				xml.append("<d:displayname />");
 			} else if (prop.equals(PROP_GETCTAG)) {

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2017 Sonicle S.r.l.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -30,49 +30,73 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
+package com.sonicle.dav.carddav.impl.request;
 
-import com.sonicle.dav.DavSyncStatus;
-import com.sonicle.dav.impl.MultistatusHandler;
-import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.ResponseHandler;
+import com.sonicle.dav.impl.PropRequest;
+import java.io.IOException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  *
  * @author malbinola
  */
-public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
+public class GetAddressbookRequest extends PropRequest {
+	public static final String PROP_DISPLAYNAME = "d:displayname";
+	public static final String PROP_GETCTAG = "cs:getctag";
+	public static final String PROP_SYNCTOKEN = "d:sync-token";
+	
+	public GetAddressbookRequest(Builder builder) {
+		super(builder.props);
+	}
 	
 	@Override
-	public ResponseHandler<Multistatus> getResponseHandler() {
-		return new MultistatusResponseHandler<>(ObjectFactory.class);
-	}
-
-	@Override
-	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
-		for (Response response : multistatus.getResponse()) {
-			for (Propstat propstat : response.getPropstat()) {
-				result.add(createDavSyncStatus(response, propstat));
+	public String toXML() throws IOException {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\">");
+		xml.append("<d:prop>");
+		for (String prop : props) {
+			if (prop.equals(PROP_DISPLAYNAME)) {
+				xml.append("<d:displayname />");
+			} else if (prop.equals(PROP_GETCTAG)) {
+				xml.append("<cs:getctag />");
+			} else if (prop.equals(PROP_SYNCTOKEN)) {
+				xml.append("<d:sync-token />");
 			}
 		}
-		return result;
+		xml.append("</d:prop>");
+		xml.append("</d:propfind>");
+		return xml.toString();
 	}
 	
-	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
-		final Prop prop = propstat.getProp();
-		return new DavSyncStatus(
-				response.getHref(),
-				prop.getGetetag(),
-				propstat.getStatus()
-		);
+	public static class Builder {
+		private Set<String> props;
+		
+		public Builder() {
+			this(new LinkedHashSet<String>());
+		}
+		
+		public Builder(Set<String> props) {
+			this.props = props;
+		}
+		
+		public Builder needPropDisplayName() {
+			props.add(PROP_DISPLAYNAME);
+			return this;
+		}
+		
+		public Builder needPropCTag() {
+			props.add(PROP_GETCTAG);
+			return this;
+		}
+		
+		public Builder needPropSyncToken() {
+			props.add(PROP_SYNCTOKEN);
+			return this;
+		}
+		
+		public GetAddressbookRequest build() {
+			return new GetAddressbookRequest(this);
+		}
 	}
 }

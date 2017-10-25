@@ -34,7 +34,7 @@ package com.sonicle.dav.caldav.impl.response;
 
 import static com.sonicle.dav.DavUtil.HTTP_SC_TEXT_OK;
 import com.sonicle.dav.caldav.DavCalendar;
-import com.sonicle.dav.caldav.impl.MultistatusHandler;
+import com.sonicle.dav.impl.MultistatusHandler;
 import com.sonicle.dav.impl.DavException;
 import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
 import zswi.schemas.dav.allprop.Multistatus;

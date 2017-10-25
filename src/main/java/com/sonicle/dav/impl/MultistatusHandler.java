@@ -30,49 +30,18 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
+package com.sonicle.dav.impl;
 
-import com.sonicle.dav.DavSyncStatus;
-import com.sonicle.dav.impl.MultistatusHandler;
-import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.http.client.ResponseHandler;
 
 /**
  *
  * @author malbinola
+ * @param <T>
+ * @param <K>
  */
-public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
+public abstract class MultistatusHandler<T, K> {
 	
-	@Override
-	public ResponseHandler<Multistatus> getResponseHandler() {
-		return new MultistatusResponseHandler<>(ObjectFactory.class);
-	}
-
-	@Override
-	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
-		for (Response response : multistatus.getResponse()) {
-			for (Propstat propstat : response.getPropstat()) {
-				result.add(createDavSyncStatus(response, propstat));
-			}
-		}
-		return result;
-	}
-	
-	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
-		final Prop prop = propstat.getProp();
-		return new DavSyncStatus(
-				response.getHref(),
-				prop.getGetetag(),
-				propstat.getStatus()
-		);
-	}
+	public abstract ResponseHandler<T> getResponseHandler(); 
+	public abstract K fromMultistatus(T multistatus) throws DavException;
 }

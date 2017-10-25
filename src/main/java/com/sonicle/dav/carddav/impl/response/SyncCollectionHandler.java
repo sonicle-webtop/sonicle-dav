@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2017 Sonicle S.r.l.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -30,19 +30,49 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl;
+package com.sonicle.dav.carddav.impl.response;
 
+import com.sonicle.dav.DavSyncStatus;
 import com.sonicle.dav.impl.DavException;
+import com.sonicle.dav.impl.MultistatusHandler;
+import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.http.client.ResponseHandler;
+import zswi.schemas.carddav.objects.Multistatus;
+import zswi.schemas.carddav.objects.ObjectFactory;
+import zswi.schemas.carddav.objects.Prop;
+import zswi.schemas.carddav.objects.Propstat;
+import zswi.schemas.carddav.objects.Response;
 
 /**
  *
  * @author malbinola
- * @param <T>
- * @param <K>
  */
-public abstract class MultistatusHandler<T, K> {
+public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
 	
-	public abstract ResponseHandler<T> getResponseHandler(); 
-	public abstract K fromMultistatus(T multistatus) throws DavException;
+	@Override
+	public ResponseHandler<Multistatus> getResponseHandler() {
+		return new MultistatusResponseHandler<>(ObjectFactory.class);
+	}
+
+	@Override
+	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
+		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
+		for (Response response : multistatus.getResponse()) {
+			for (Propstat propstat : response.getPropstat()) {
+				result.add(createDavSyncStatus(response, propstat));
+			}
+		}
+		return result;
+	}
+	
+	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
+		final Prop prop = propstat.getProp();
+		return new DavSyncStatus(
+				response.getHref(),
+				prop.getGetetag(),
+				propstat.getStatus()
+		);
+	}
 }

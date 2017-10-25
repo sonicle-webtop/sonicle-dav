@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2017 Sonicle S.r.l.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -30,49 +30,44 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
+package com.sonicle.dav;
 
-import com.sonicle.dav.DavSyncStatus;
-import com.sonicle.dav.impl.MultistatusHandler;
-import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.ResponseHandler;
+import com.sonicle.dav.carddav.impl.CardDavImpl;
+import java.net.ProxySelector;
 
 /**
  *
  * @author malbinola
  */
-public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
+public class CardDavFactory {
 	
-	@Override
-	public ResponseHandler<Multistatus> getResponseHandler() {
-		return new MultistatusResponseHandler<>(ObjectFactory.class);
-	}
-
-	@Override
-	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
-		for (Response response : multistatus.getResponse()) {
-			for (Propstat propstat : response.getPropstat()) {
-				result.add(createDavSyncStatus(response, propstat));
-			}
-		}
-		return result;
+	/**
+	 * Default begin() for when you don't need anything but no authentication
+	 * and default settings for SSL.
+	 * @return 
+	 */
+	public static CardDav begin() {
+		return begin(null, null);
 	}
 	
-	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
-		final Prop prop = propstat.getProp();
-		return new DavSyncStatus(
-				response.getHref(),
-				prop.getGetetag(),
-				propstat.getStatus()
-		);
+	/**
+	 * Pass in a HTTP Auth username/password for being used with all 
+	 * connections.
+	 * @param username Use in authentication header credentials.
+	 * @param password Use in authentication header credentials.
+	 * @return 
+	 */
+	public static CardDav begin(String username, String password) {
+		return begin(username, password, null);
+	}
+	
+	/**
+	 * @param username Use in authentication header credentials.
+	 * @param password Use in authentication header credentials.
+	 * @param proxy Proxy configuration.
+	 * @return 
+	 */
+	public static CardDav begin(String username, String password, ProxySelector proxy) {
+		return new CardDavImpl(username, password, proxy);
 	}
 }

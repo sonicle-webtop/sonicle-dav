@@ -30,49 +30,44 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
-
-import com.sonicle.dav.DavSyncStatus;
-import com.sonicle.dav.impl.MultistatusHandler;
-import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.http.client.ResponseHandler;
+package com.sonicle.dav.carddav;
 
 /**
  *
  * @author malbinola
  */
-public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
+public class DavAddressbook {
+	private final String path;
+	private final String eTag;
+	private final String cTag;
+	private final String displayName;
+	private final String syncToken;
 	
-	@Override
-	public ResponseHandler<Multistatus> getResponseHandler() {
-		return new MultistatusResponseHandler<>(ObjectFactory.class);
+	public DavAddressbook(String path, String eTag, String cTag, String displayName, String syncToken) {
+		this.path = path;
+		this.eTag = eTag;
+		this.cTag = cTag;
+		this.displayName = displayName;
+		this.syncToken = syncToken;
 	}
 
-	@Override
-	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
-		for (Response response : multistatus.getResponse()) {
-			for (Propstat propstat : response.getPropstat()) {
-				result.add(createDavSyncStatus(response, propstat));
-			}
-		}
-		return result;
+	public String getPath() {
+		return path;
 	}
 	
-	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
-		final Prop prop = propstat.getProp();
-		return new DavSyncStatus(
-				response.getHref(),
-				prop.getGetetag(),
-				propstat.getStatus()
-		);
+	public String getETag() {
+		return eTag;
+	}
+
+	public String getCTag() {
+		return cTag;
+	}
+
+	public String getDisplayName() {
+		return displayName;
+	}
+	
+	public String getSyncToken() {
+		return syncToken;
 	}
 }

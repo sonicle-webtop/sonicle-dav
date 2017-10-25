@@ -30,49 +30,59 @@
  * reasonably feasible for technical reasons, the Appropriate Legal Notices must
  * display the words "Copyright (C) 2017 Sonicle S.r.l.".
  */
-package com.sonicle.dav.caldav.impl.response;
+package com.sonicle.dav.carddav.impl.request;
 
-import com.sonicle.dav.DavSyncStatus;
-import com.sonicle.dav.impl.MultistatusHandler;
-import com.sonicle.dav.impl.DavException;
-import com.sonicle.dav.impl.handler.MultistatusResponseHandler;
-import zswi.schemas.dav.icalendarobjects.ObjectFactory;
-import zswi.schemas.dav.icalendarobjects.Multistatus;
-import zswi.schemas.dav.icalendarobjects.Prop;
-import zswi.schemas.dav.icalendarobjects.Propstat;
-import zswi.schemas.dav.icalendarobjects.Response;
+import com.sonicle.dav.impl.AbstractRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.http.client.ResponseHandler;
 
 /**
  *
  * @author malbinola
  */
-public class SyncCollectionHandler extends MultistatusHandler<Multistatus, List<DavSyncStatus>> {
+public class MultigetRequest extends AbstractRequest {
+	private final List<String> hrefs;
+	
+	public MultigetRequest(Builder builder) {
+		this.hrefs = builder.hrefs;
+	}
 	
 	@Override
-	public ResponseHandler<Multistatus> getResponseHandler() {
-		return new MultistatusResponseHandler<>(ObjectFactory.class);
-	}
-
-	@Override
-	public List<DavSyncStatus> fromMultistatus(Multistatus multistatus) throws DavException {
-		List<DavSyncStatus> result = new ArrayList<>(multistatus.getResponse().size());
-		for (Response response : multistatus.getResponse()) {
-			for (Propstat propstat : response.getPropstat()) {
-				result.add(createDavSyncStatus(response, propstat));
-			}
+	public String toXML() throws IOException {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<card:addressbook-multiget xmlns:d=\"DAV:\" xmlns:card=\"urn:ietf:params:xml:ns:carddav\">");
+		xml.append("<d:prop>");
+		xml.append("<d:getetag />");
+		xml.append("<c:addressbook-data />");
+		xml.append("</d:prop>");
+		for(String href : hrefs) {
+			xml.append("<d:href>");
+			xml.append(href);
+			xml.append("</d:href>");
 		}
-		return result;
+		xml.append("</card:addressbook-multiget>");
+		return xml.toString();
 	}
 	
-	protected DavSyncStatus createDavSyncStatus(final Response response, final Propstat propstat) {
-		final Prop prop = propstat.getProp();
-		return new DavSyncStatus(
-				response.getHref(),
-				prop.getGetetag(),
-				propstat.getStatus()
-		);
+	public static class Builder {
+		private final List<String> hrefs;
+		
+		public Builder() {
+			this(new ArrayList<String>());
+		}
+		
+		public Builder(List<String> hrefs) {
+			this.hrefs = hrefs;
+		}
+		
+		public Builder addHref(String href) {
+			this.hrefs.add(href);
+			return this;
+		}
+		
+		public MultigetRequest build() {
+			return new MultigetRequest(this);
+		}
 	}
 }
