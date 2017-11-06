@@ -36,6 +36,7 @@ import com.sonicle.dav.caldav.DavCalendarEvent;
 import com.sonicle.dav.caldav.DavCalendar;
 import com.sonicle.dav.caldav.impl.request.GetCalendarRequest;
 import com.sonicle.dav.impl.DavException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -50,5 +51,5 @@ public interface CalDav {
 	public List<DavSyncStatus> getCalendarChanges(String calendarUrl, String syncToken) throws DavException;
 	public List<DavCalendarEvent> listCalendarEventETags(String calendarUrl) throws DavException;
 	public List<DavCalendarEvent> listCalendarEvents(String calendarUrl) throws DavException;
-	public List<DavCalendarEvent> listCalendarEvents(String calendarUrl, List<String> paths) throws DavException;
+	public List<DavCalendarEvent> listCalendarEvents(String calendarUrl, Collection<String> paths) throws DavException;
 }

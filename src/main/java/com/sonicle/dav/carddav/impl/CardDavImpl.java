@@ -47,6 +47,7 @@ import com.sonicle.dav.impl.DavException;
 import com.sonicle.dav.impl.DavImpl;
 import java.io.IOException;
 import java.net.ProxySelector;
+import java.util.Collection;
 import java.util.List;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 
@@ -151,7 +152,7 @@ public class CardDavImpl extends DavImpl implements CardDav {
 	}
 
 	@Override
-	public List<DavAddressbookCard> listAddressbookCards(String addressbookUrl, List<String> paths) throws DavException {
+	public List<DavAddressbookCard> listAddressbookCards(String addressbookUrl, Collection<String> paths) throws DavException {
 		MultigetRequest request = new MultigetRequest.Builder(paths)
 				.build();
 		try {

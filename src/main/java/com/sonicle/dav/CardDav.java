@@ -36,6 +36,7 @@ import com.sonicle.dav.carddav.DavAddressbook;
 import com.sonicle.dav.carddav.DavAddressbookCard;
 import com.sonicle.dav.carddav.impl.request.GetAddressbookRequest;
 import com.sonicle.dav.impl.DavException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -50,5 +51,5 @@ public interface CardDav {
 	public List<DavSyncStatus> getAddressbookChanges(String addressbookUrl, String syncToken) throws DavException;
 	public List<DavAddressbookCard> listAddressbookCardETags(String addressbookUrl) throws DavException;
 	public List<DavAddressbookCard> listAddressbookCards(String addressbookUrl) throws DavException;
-	public List<DavAddressbookCard> listAddressbookCards(String addressbookUrl, List<String> paths) throws DavException;
+	public List<DavAddressbookCard> listAddressbookCards(String addressbookUrl, Collection<String> paths) throws DavException;
 }

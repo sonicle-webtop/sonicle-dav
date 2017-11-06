@@ -35,6 +35,7 @@ package com.sonicle.dav.caldav.impl.request;
 import com.sonicle.dav.impl.AbstractRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -69,11 +70,11 @@ public class MultigetRequest extends AbstractRequest {
 		private final List<String> hrefs;
 		
 		public Builder() {
-			this(new ArrayList<String>());
+			this(null);
 		}
 		
-		public Builder(List<String> hrefs) {
-			this.hrefs = hrefs;
+		public Builder(Collection<String> hrefs) {
+			this.hrefs = (hrefs != null) ? new ArrayList<>(hrefs) : new ArrayList<String>();
 		}
 		
 		public Builder addHref(String href) {

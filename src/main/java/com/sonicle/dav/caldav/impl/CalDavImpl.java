@@ -50,6 +50,7 @@ import com.sonicle.dav.impl.DavException;
 import com.sonicle.dav.impl.DavImpl;
 import java.io.IOException;
 import java.net.ProxySelector;
+import java.util.Collection;
 import java.util.List;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.slf4j.Logger;
@@ -167,7 +168,7 @@ public class CalDavImpl extends DavImpl implements CalDav {
 	}
 	
 	@Override
-	public List<DavCalendarEvent> listCalendarEvents(String calendarUrl, List<String> paths) throws DavException {
+	public List<DavCalendarEvent> listCalendarEvents(String calendarUrl, Collection<String> paths) throws DavException {
 		MultigetRequest request = new MultigetRequest.Builder(paths)
 				.build();
 		try {
