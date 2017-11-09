@@ -47,8 +47,14 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import net.fortuna.ical4j.data.CalendarBuilder;
+import net.fortuna.ical4j.data.CalendarParser;
+import net.fortuna.ical4j.data.CalendarParserFactory;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
+import net.fortuna.ical4j.model.ParameterFactoryRegistry;
+import net.fortuna.ical4j.model.PropertyFactoryRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.ResponseHandler;
 
@@ -67,10 +73,11 @@ public class ICalendarObjectsHandler extends MultistatusHandler<Multistatus, Lis
 	public List<DavCalendarEvent> fromMultistatus(Multistatus multistatus) throws DavException {
 		List<DavCalendarEvent> result = new ArrayList<>(multistatus.getResponse().size());
 		try {
+			final CalendarBuilder builder = createCalendarBuilder();
 			for (Response response : multistatus.getResponse()) {
 				for (Propstat propstat : response.getPropstat()) {
 					if (HTTP_SC_TEXT_OK.equals(propstat.getStatus())) {
-						result.add(createDavCalendarEvent(response, propstat));
+						result.add(createDavCalendarEvent(builder, response, propstat));
 					}
 				}
 			}
@@ -80,17 +87,26 @@ public class ICalendarObjectsHandler extends MultistatusHandler<Multistatus, Lis
 		return result;
 	}
 	
-	protected DavCalendarEvent createDavCalendarEvent(final Response response, final Propstat propstat) throws IOException, ParserException {
+	protected DavCalendarEvent createDavCalendarEvent(final CalendarBuilder builder, final Response response, final Propstat propstat) throws IOException, ParserException {
 		final Prop prop = propstat.getProp();
 		
 		Calendar calendar = null;
 		if (!StringUtils.isBlank(prop.getCalendarData())) {
-			calendar = new CalendarBuilder().build(new StringReader(prop.getCalendarData()));
+			calendar = builder.build(new StringReader(prop.getCalendarData()));
 		}
 		return new DavCalendarEvent(
 				response.getHref(),
 				prop.getGetetag(),
 				calendar
 		);
+	}
+	
+	protected CalendarBuilder createCalendarBuilder() {
+		CalendarParser parser = CalendarParserFactory.getInstance().createParser();
+		PropertyFactoryRegistry propertyRegistry = new PropertyFactoryRegistry();
+		//propertyRegistry.register(PreferredLanguage.PROPERTY_NAME, PreferredLanguage.FACTORY);
+		ParameterFactoryRegistry parameterRegistry = new ParameterFactoryRegistry();
+		TimeZoneRegistry tzRegistry = TimeZoneRegistryFactory.getInstance().createRegistry();
+		return new CalendarBuilder(parser, propertyRegistry, parameterRegistry, tzRegistry);
 	}
 }
