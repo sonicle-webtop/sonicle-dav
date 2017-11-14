@@ -52,17 +52,17 @@ public class MultigetRequest extends AbstractRequest {
 	@Override
 	public String toXML() throws IOException {
 		StringBuilder xml = new StringBuilder();
-		xml.append("<card:addressbook-multiget xmlns:d=\"DAV:\" xmlns:card=\"urn:ietf:params:xml:ns:carddav\">");
+		xml.append("<c:addressbook-multiget xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:carddav\">");
 		xml.append("<d:prop>");
 		xml.append("<d:getetag />");
-		xml.append("<c:addressbook-data />");
+		xml.append("<c:address-data />");
 		xml.append("</d:prop>");
 		for(String href : hrefs) {
 			xml.append("<d:href>");
 			xml.append(href);
 			xml.append("</d:href>");
 		}
-		xml.append("</card:addressbook-multiget>");
+		xml.append("</c:addressbook-multiget>");
 		return xml.toString();
 	}
 	

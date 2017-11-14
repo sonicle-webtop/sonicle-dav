@@ -118,7 +118,7 @@ public class CalDavImpl extends DavImpl implements CalDav {
 				.setSyncToken(syncToken)
 				.build();
 		try {
-			return this.report(calendarUrl, 0, request.toXML(), new SyncCollectionHandler());
+			return this.report(calendarUrl, 1, request.toXML(), new SyncCollectionHandler());
 		} catch(IOException ex) {
 			throw new DavException(ex);
 		}

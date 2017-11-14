@@ -47,8 +47,11 @@ import com.sonicle.dav.impl.DavException;
 import com.sonicle.dav.impl.DavImpl;
 import java.io.IOException;
 import java.net.ProxySelector;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
 
 /**
@@ -112,7 +115,7 @@ public class CardDavImpl extends DavImpl implements CardDav {
 				.setSyncToken(syncToken)
 				.build();
 		try {
-			return this.report(addressbookUrl, 0, request.toXML(), new SyncCollectionHandler());
+			return this.report(addressbookUrl, 1, request.toXML(), new SyncCollectionHandler());
 		} catch(IOException ex) {
 			throw new DavException(ex);
 		}
@@ -120,12 +123,19 @@ public class CardDavImpl extends DavImpl implements CardDav {
 
 	@Override
 	public List<DavAddressbookCard> listAddressbookCardETags(String addressbookUrl) throws DavException {
+		// NB: c:filter element is required only by Google CardDAV backend!
+		// See: https://stackoverflow.com/questions/23742568/google-carddav-api-addressbook-multiget-returns-400-bad-request
 		String xmlRequest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
-				+ "<card:addressbook-query xmlns:d=\"DAV:\" xmlns:card=\"urn:ietf:params:xml:ns:carddav\">\n"
+				+ "<c:addressbook-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:carddav\">\n"
 				+ "  <d:prop>\n"
 				+ "    <d:getetag/>\n"
 				+ "  </d:prop>\n"
-				+ "</card:addressbook-query>";
+				+ (!isGoogle(addressbookUrl) ? "" : "  <c:filter><c:prop-filter name=\"FN\"></c:prop-filter></c:filter>")
+				//+ "  <c:filter>\n"
+				//+ "    <c:prop-filter name=\"FN\">\n"
+				//+ "    </c:prop-filter>\n"
+				//+ "  </c:filter>\n"
+				+ "</c:addressbook-query>";
 		
 		try {
 			return this.report(addressbookUrl, 1, xmlRequest, new VCardObjectsHandler());
@@ -136,13 +146,20 @@ public class CardDavImpl extends DavImpl implements CardDav {
 
 	@Override
 	public List<DavAddressbookCard> listAddressbookCards(String addressbookUrl) throws DavException {
+		// NB: c:filter element is required only by Google CardDAV backend!
+		// See: https://stackoverflow.com/questions/23742568/google-carddav-api-addressbook-multiget-returns-400-bad-request
 		String xmlRequest = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n"
-				+ "<card:addressbook-query xmlns:d=\"DAV:\" xmlns:card=\"urn:ietf:params:xml:ns:carddav\">\n"
+				+ "<c:addressbook-query xmlns:d=\"DAV:\" xmlns:c=\"urn:ietf:params:xml:ns:carddav\">\n"
 				+ "  <d:prop>\n"
 				+ "    <d:getetag/>\n"
-				+ "    <card:address-data />\n"
+				+ "    <c:address-data />\n"
 				+ "  </d:prop>\n"
-				+ "</card:addressbook-query>";
+				+ (!isGoogle(addressbookUrl) ? "" : "  <c:filter><c:prop-filter name=\"FN\"></c:prop-filter></c:filter>")
+				//+ "  <c:filter>\n"
+				//+ "    <c:prop-filter name=\"FN\">\n"
+				//+ "    </c:prop-filter>\n"
+				//+ "  </c:filter>\n"
+				+ "</c:addressbook-query>";
 		
 		try {
 			return this.report(addressbookUrl, 1, xmlRequest, new VCardObjectsHandler());
@@ -159,6 +176,14 @@ public class CardDavImpl extends DavImpl implements CardDav {
 			return this.report(addressbookUrl, 1, request, new VCardObjectsHandler());
 		} catch(IOException ex) {
 			throw new DavException(ex);
+		}
+	}
+	
+	private boolean isGoogle(String url) {
+		try {
+			return StringUtils.containsIgnoreCase(new URI(url).getHost(), "google");
+		} catch(URISyntaxException ex) {
+			return false;
 		}
 	}
 }
