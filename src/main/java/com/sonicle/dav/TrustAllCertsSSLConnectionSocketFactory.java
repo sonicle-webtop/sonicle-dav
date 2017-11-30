@@ -66,6 +66,8 @@ public class TrustAllCertsSSLConnectionSocketFactory extends SSLConnectionSocket
 	public static TrustAllCertsSSLConnectionSocketFactory getInstance() {
 		TrustAllCertsSSLConnectionSocketFactory factory = null;
 		try {
+			//SSLContext ctx = SSLContext.getInstance("SSL"); 
+			//ctx.init(null, TRUST_ALL_CERTS, new java.security.SecureRandom()); 
 			SSLContext ctx = SSLContext.getInstance("TLS");
 			ctx.init(null, TRUST_ALL_CERTS, null); 
 			factory = new TrustAllCertsSSLConnectionSocketFactory(ctx);
