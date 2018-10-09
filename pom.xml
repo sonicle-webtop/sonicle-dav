@@ -9,9 +9,9 @@
     
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-	 <netbeans.hint.license>agpl30-sonicle</netbeans.hint.license>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<netbeans.hint.jdkPlatform>JDK_1.8</netbeans.hint.jdkPlatform>
 	</properties>
 	
 	<dependencies>
