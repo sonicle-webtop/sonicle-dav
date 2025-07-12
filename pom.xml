@@ -19,7 +19,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		
 		<!-- DEP: widely used libs -->
-		<commons-lang3.version>3.12.0</commons-lang3.version>
+		<commons-lang3.version>3.18.0</commons-lang3.version>
 		<ez-vcard.version>0.10.4</ez-vcard.version>
 		<ical4j.version>2.0.0</ical4j.version>
 		<sardine.version>5.8</sardine.version>
